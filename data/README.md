@@ -9,7 +9,9 @@ This folder holds datasets used to validate detection thresholds (EAR, PERCLOS, 
 - **Used for:** validating EAR and PERCLOS thresholds (Week 2, Day 9)
 
 ## YawDD
-- **Location:** `data/yawdd/` (to be added)
+- **Location:** `data/yawdd/` (not tracked in Git — ~5GB)
+- **Source:** YawDD (Yawning Detection Dataset)
+- **Structure:** `Dash/` and `Mirror/` folders (two camera angles), each split by subject with videos labeled by gender and glasses (e.g. `MaleGlasses`, `MaleNoGlasses`); `Table1`/`Table2` hold metadata; see `Readme_YawDD.pdf` for full labeling details
 - **Used for:** validating MOR / yawn detection thresholds (Week 2, Day 10)
 
 ## NTHU Driver Drowsiness Dataset (optional)
