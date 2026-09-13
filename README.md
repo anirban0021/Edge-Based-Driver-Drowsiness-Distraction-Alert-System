@@ -182,7 +182,68 @@ Installing this version downgrades `numpy` and `opencv-contrib-python` to older 
 
 ---
 
-## Setup (cumulative, current as of Day 5)
+## Day 6 — Eye Aspect Ratio (EAR) Formula
+
+**What was built**
+- `src/ear.py` — `eye_aspect_ratio()` function calculating EAR from the 6 eye landmark points already extracted by `face_landmarks.py`: `(||P2-P6|| + ||P3-P5||) / (2 * ||P1-P4||)`.
+- `src/day6_demo.py` — demo script overlaying the live EAR value on the webcam feed.
+
+**Run it**
+```powershell
+python src\day6_demo.py
+```
+
+**Observations (recorded in NOTES.md)**
+- Eyes open (normal): EAR ~0.28–0.32
+- Eyes closed (blink): EAR drops to ~0.08–0.12
+- Measured FPS on this machine: ~70 FPS (much higher than a typical 15–30 FPS webcam — noted for later window-size calculations)
+
+**Deliverable:** on-screen EAR value visibly drops on blink and recovers when eyes open. ✅
+
+---
+
+## Day 7 — Blink / Closed-Eye Calibration
+
+**What was built**
+- `src/calibration.py` — `calibrate_ear()` runs a 5-second "keep eyes open" routine at startup and returns the average EAR as the user's personal baseline; `SessionConfig` derives a closed-eye threshold as a fraction (default 0.75×) of that baseline and exposes `is_closed(current_ear)`.
+- `src/day7_demo.py` — runs calibration, then classifies open/closed live using the calibrated threshold.
+
+**Run it**
+```powershell
+python src\day7_demo.py
+```
+Keep eyes open and look at the camera during the 5-second calibration countdown.
+
+**Calibration results (recorded in NOTES.md)**
+- Baseline (open) EAR: 0.260 (from terminal output)
+- Closed threshold (0.75× baseline): 0.195
+- Manual open/closed classification test: correct
+
+**Deliverable:** app prints a calibrated per-user EAR threshold at startup and correctly classifies open vs. closed in a manual test. ✅
+
+---
+
+## Day 8 — PERCLOS (Microsleep) Logic
+
+**What was built**
+- `src/perclos.py` — `PerclosTracker` class: maintains a rolling window (default 90 frames) of closed/open booleans, computes PERCLOS (% of window closed), tracks continuous closed-eye duration, and flags `microsleep` when PERCLOS > 20% OR continuous closure > 2.0 seconds.
+- `src/day8_demo.py` — combines calibration + PERCLOS tracking live, printing an alert line to console and showing "MICROSLEEP DETECTED" on screen when triggered.
+
+**Run it**
+```powershell
+python src\day8_demo.py
+```
+
+**Test results (recorded in NOTES.md)**
+- Holding eyes closed 2+ seconds: triggered correctly.
+- Normal blinking: did not false-trigger (blink duration ~0.1–0.4s is far below the 2.0s continuous threshold, and adds only ~3–11% to PERCLOS in a 90-frame window — well under the 20% threshold).
+- Window size note: 90 frames measures out to ~1.3 seconds of real time at this machine's measured ~70 FPS, not the ~3–6 seconds a typical 15–30 FPS webcam would give — worth revisiting if the window's effective duration needs to be more consistent across machines (candidate fix: switch to a time-based window rather than frame-count-based, to be considered at Day 9 tuning or Week 6 optimization).
+
+**Deliverable:** closing eyes for 2+ seconds reliably triggers the microsleep flag in console/overlay; normal blinking does not. ✅
+
+---
+
+## Setup (cumulative, current as of Day 8)
 
 ```powershell
 python -m venv venv
@@ -193,4 +254,9 @@ pip install -r requirements.txt
 Verify webcam:
 ```powershell
 python -c "import cv2; print(cv2.VideoCapture(0).read()[0])"
+```
+
+Run the current furthest-along demo (calibration + PERCLOS microsleep detection):
+```powershell
+python src\day8_demo.py
 ```
