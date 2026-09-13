@@ -6,3 +6,8 @@
 - Baseline (open) EAR: <0.212>
 - Closed threshold (0.75x baseline): <0.054>
 - Open/closed classification: correct in manual test? yes
+
+## Day 8 — PERCLOS test results
+- Holding eyes closed 2+ seconds: triggered? yes
+- Normal blinking: false-triggered? no
+- Window size used: 90 frames (~3-6 seconds depending on your FPS)
