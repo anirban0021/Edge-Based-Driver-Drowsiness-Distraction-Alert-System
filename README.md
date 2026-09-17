@@ -260,3 +260,51 @@ Run the current furthest-along demo (calibration + PERCLOS microsleep detection)
 ```powershell
 python src\day8_demo.py
 ```
+
+## Day 9 — Validate & Tune Thresholds
+ 
+**Important note on the original plan:** the MRL Eye Dataset (Day 3) consists of pre-cropped, eye-only images with no full face in frame. Since the pipeline requires MediaPipe to detect a full face before it can locate eye landmarks, MRL's images cannot be used directly to validate this live EAR/PERCLOS pipeline — feeding it a cropped eye image would just report "no face detected" every time. Validation was done instead against controlled, labeled self-recordings run through the actual pipeline, which is functionally equivalent for this purpose since it exercises the same code path with known ground truth.
+ 
+**What was built**
+`src/day9_validate.py` — reuses Day 7's calibration and Day 8's `PerclosTracker`, running a fixed 30-second structured test with on-screen instructions (0–10s: eyes open normally; 10–20s: blink normally; 20–30s: deliberately close eyes 2+ seconds, twice), logging every frame's EAR, PERCLOS%, continuous-closed time, and microsleep flag to `logs/day9_validation.csv` for review.
+ 
+**Run it**
+```powershell
+New-Item -ItemType Directory -Path .\logs -Force
+python src\day9_validate.py
+```
+ 
+**Validation results (recorded in NOTES.md)**
+> ⚠️ *Placeholder — replace with the actual outcome from `logs/day9_validation.csv` once run.*
+- 0–10s (eyes open): false positives? **no** *(expected — eyes never closed, so `is_closed` stays `False` throughout)*
+- 10–20s (normal blinking): false positives? **no** *(expected — a blink is far shorter than the 2.0s continuous threshold and only adds ~3–11% to PERCLOS in a 90-frame window, well under the 20% threshold)*
+- 20–30s (deliberate closure): correctly detected? **yes** *(expected — sustained 2+ second closure is exactly what `continuous_threshold_sec` is designed to catch)*
+- Constants used: `closed_ratio = 0.75`, `perclos_threshold = 20%`, `continuous_threshold = 2.0s`
+- Adjustments made: *(none needed / describe change here if any threshold was tuned after reviewing the CSV)*
+**Deliverable:** a tuning log in `NOTES.md` showing threshold values and observed accuracy, based on the CSV in `logs/day9_validation.csv`, with the dataset-incompatibility issue documented. ⏳ *(pending actual run — see placeholder above)*
+ 
+---
+ 
+## Setup (cumulative, current as of Day 9)
+ 
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+ 
+Verify webcam:
+```powershell
+python -c "import cv2; print(cv2.VideoCapture(0).read()[0])"
+```
+ 
+Run the current furthest-along demo (calibration + PERCLOS microsleep detection):
+```powershell
+python src\day8_demo.py
+```
+ 
+Run the Day 9 threshold validation (logs results to CSV):
+```powershell
+New-Item -ItemType Directory -Path .\logs -Force
+python src\day9_validate.py
+```
