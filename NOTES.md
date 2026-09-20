@@ -21,3 +21,9 @@ controlled self-recordings instead (logs/day9_validation.csv).
 - 10-20s (normal blinking): false positives? no
 - 20-30s (deliberate closure): correctly detected? yes
 - closed_ratio used: 0.75 | perclos_threshold: 20% | continuous_threshold: 2.0s
+
+## Day 10 — Yawn detection results
+- MOR threshold used: 0.6
+- Real yawn detected correctly? yes
+- Talking falsely triggered a yawn? no
+- Adjustments made: none
