@@ -397,3 +397,48 @@ python src\day9_validate.py  # threshold validation, logs to CSV
 python src\day10_demo.py     # yawn (MOR) detection
 python src\day11_demo.py     # head pose (pitch/yaw/roll) estimation
 ```
+
+---
+
+## Day 12 — Looking-Away / Distraction Threshold
+
+**What was built**
+- `src/distraction.py` — `DistractionTracker` class: flags "looking away" only when
+  `|yaw|` or `|pitch|` exceeds a threshold continuously for at least `sustain_duration`
+  (default 1.0s), so brief glances (e.g. mirror checks) don't false-trigger.
+- `src/day12_demo.py` — live demo combining head pose + distraction tracking, with
+  debug markers on the 6 landmark points fed into `solvePnP` for troubleshooting.
+
+**Run it**
+```powershell
+python src\day12_demo.py
+```
+Look straight at the camera during the 3-second calibration countdown before testing.
+
+**Gotcha hit — baseline pose offset**
+Raw yaw/pitch from Day 11's `solvePnP` showed a significant offset even while facing
+the camera directly (~25° yaw, ~23° pitch at rest), caused by the webcam being
+mounted below eye level combined with the generic 3D face model not matching this
+face's exact proportions. This caused false "DISTRACTED" triggers while sitting
+normally.
+
+**Fix applied:**
+1. Switched the `solvePnP` method from `SOLVEPNP_ITERATIVE` to `SOLVEPNP_EPNP` in
+   `head_pose.py` for more stable estimates from a sparse 6-point landmark set.
+2. Added exponential smoothing to the yaw/pitch/roll output to reduce frame-to-frame jitter.
+3. Added a `calibrate_head_pose()` function: a 3-second "look straight at the camera"
+   routine at startup that measures a personal neutral baseline. All distraction
+   detection now runs on *deviation from this baseline*, not the raw angle — the
+   same calibration pattern used for EAR on Day 7.
+
+**Test results (recorded in NOTES.md)**
+- Facing forward after calibration: no false "DISTRACTED" trigger.
+- Quick glance (<1s): does not trigger.
+- Sustained turn (1+s): correctly triggers.
+- Sustained downward look: re-testing with a more exaggerated motion, since the
+  webcam's low mounting position compresses the usable pitch range — `pitch_threshold`
+  may be lowered from 25° to ~18° depending on results.
+
+**Deliverable:** a brief head turn does not trigger the alert, but a sustained turn (1+ second) does, using a per-user calibrated baseline rather than raw angles. ✅ *(pitch threshold tuning in progress — see NOTES.md)*
+
+---
