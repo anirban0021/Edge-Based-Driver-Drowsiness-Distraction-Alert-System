@@ -350,3 +350,50 @@ python src\day8_demo.py    # calibration + PERCLOS microsleep detection
 python src\day9_validate.py  # threshold validation, logs to CSV
 python src\day10_demo.py   # yawn (MOR) detection
 ```
+
+## Day 11 — Head-Pose Estimation
+ 
+**What was built**
+- `src/head_pose.py` — `HeadPoseEstimator` class: uses OpenCV's `solvePnP` with six stable facial landmarks (nose tip, chin, outer eye corners, mouth corners) against a generic 3D face model to compute pitch, yaw, and roll in degrees.
+- `src/day11_demo.py` — live demo overlaying pitch/yaw/roll values and drawing a direction line from the nose tip showing which way the head is pointing.
+**Run it**
+```powershell
+python src\day11_demo.py
+```
+ 
+**Test results (recorded in NOTES.md)**
+- Turning head left/right: yaw value swings correctly and the direction line visibly follows head movement.
+- Nodding up/down: pitch value changes correctly.
+- Tilting head side to side: roll value changes correctly.
+- All three angles respond distinctly without significant cross-contamination.
+**Sign convention observed** (needed for Day 12's distraction threshold logic):
+- Turning head to physical left → yaw swings strongly negative (measured approx. -85°)
+- Turning head to physical right → yaw swings positive
+- (Pitch/roll conventions: to be confirmed the same way if not already noted in NOTES.md)
+**Gotcha hit — unmirrored camera feed**
+The raw OpenCV feed is not mirrored (it shows the camera's true perspective, like someone facing you, not a mirror reflection), so on-screen head movement appears reversed relative to actual physical movement — e.g. turning your head to your own left appears to move right on screen. This does **not** affect the correctness of the pitch/yaw/roll math, since the sign convention is tied to actual physical direction, not to screen appearance — it only matters for interpreting the video visually. Documented rather than "fixed," since flipping the display (`cv2.flip(frame, 1)`, applied immediately after `stream.read()`) is optional and purely cosmetic; it was not applied to keep this day's code minimal.
+ 
+**Deliverable:** yaw value swings positive/negative correctly as the head turns left/right on camera. ✅
+ 
+---
+ 
+## Setup (cumulative, current as of Day 11)
+ 
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+ 
+Verify webcam:
+```powershell
+python -c "import cv2; print(cv2.VideoCapture(0).read()[0])"
+```
+ 
+Run the current furthest-along demos:
+```powershell
+python src\day8_demo.py      # calibration + PERCLOS microsleep detection
+python src\day9_validate.py  # threshold validation, logs to CSV
+python src\day10_demo.py     # yawn (MOR) detection
+python src\day11_demo.py     # head pose (pitch/yaw/roll) estimation
+```

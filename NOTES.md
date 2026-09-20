@@ -27,3 +27,9 @@ controlled self-recordings instead (logs/day9_validation.csv).
 - Real yawn detected correctly? yes
 - Talking falsely triggered a yawn? no
 - Adjustments made: none
+
+## Day 11 — Head pose sign convention
+- Turning head to my right → yaw is: positive
+- Turning head to my left → yaw is: negative
+- Looking down → pitch is: positive
+- Looking up → pitch is: negative
