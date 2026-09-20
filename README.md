@@ -308,3 +308,45 @@ Run the Day 9 threshold validation (logs results to CSV):
 New-Item -ItemType Directory -Path .\logs -Force
 python src\day9_validate.py
 ```
+
+## Day 10 — Yawn Detection (MOR) Module
+ 
+**What was built**
+- `src/mor.py` — `mouth_opening_ratio()` function: vertical lip gap ÷ horizontal mouth width, using the mouth landmarks already extracted by `face_landmarks.py`.
+- `src/yawn_tracker.py` — `YawnTracker` class: counts a yawn only once the mouth has stayed open above `mor_threshold` continuously for at least `min_yawn_duration` (default 1.5s), preventing normal talking from being miscounted; also tracks a rolling yawns-per-minute rate over a 60-second window.
+- `src/day10_demo.py` — live demo overlaying MOR value, yawn count, yawns/minute, and a "YAWN DETECTED" flag.
+**Run it**
+```powershell
+python src\day10_demo.py
+```
+ 
+**Test results (recorded in NOTES.md)**
+- MOR threshold used: 0.6
+- Real yawn detected correctly: yes
+- Normal talking falsely triggered a yawn: no
+- Adjustments made: none needed
+**Deliverable:** on-screen yawn counter increments correctly on real yawns and ignores normal talking. ✅
+ 
+**Week 2 complete** — EAR, calibration, PERCLOS, threshold validation, and yawn detection are all built and verified. Week 3 (Day 11–15) covers head pose, distraction detection, and object detection (YOLO/phone).
+ 
+---
+ 
+## Setup (cumulative, current as of Day 10)
+ 
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+ 
+Verify webcam:
+```powershell
+python -c "import cv2; print(cv2.VideoCapture(0).read()[0])"
+```
+ 
+Run the current furthest-along demos:
+```powershell
+python src\day8_demo.py    # calibration + PERCLOS microsleep detection
+python src\day9_validate.py  # threshold validation, logs to CSV
+python src\day10_demo.py   # yawn (MOR) detection
+```
